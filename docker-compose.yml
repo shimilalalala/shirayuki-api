@@ -7,31 +7,10 @@ services:
     environment:
       - PORT=3001
       - NODE_ENV=production
-      # Route only Cloudflare-IP-gated CDNs (mewstream/lostproject) through the
-      # WARP sidecar so they egress from a Cloudflare-trusted IP. Everything else
-      # stays direct. Remove this line to disable and go fully direct.
-      - GATED_PROXY=socks5://warp:1080
-    depends_on:
-      - warp
+      # Optional: route only Cloudflare-IP-gated CDNs (mewstream/lostproject,
+      # owocdn) through a SOCKS5 proxy so they egress from a trusted IP. These
+      # CDNs hard-block datacenter IPs AND Cloudflare WARP, so only a paid
+      # RESIDENTIAL/mobile proxy actually unblocks them (yuki/uwu). Uncomment
+      # and point at one to enable; no code change needed:
+      # - GATED_PROXY=socks5://USER:PASS@residential-host:PORT
     restart: unless-stopped
-
-  # Cloudflare WARP exposed as a SOCKS5 proxy (port 1080). Gives a
-  # Cloudflare-network egress IP that mewstream's WAF generally doesn't block.
-  warp:
-    image: caomingjun/warp
-    container_name: warp
-    environment:
-      - WARP_SLEEP=5
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=0
-      - net.ipv4.conf.all.src_valid_mark=1
-    volumes:
-      - warp-data:/var/lib/cloudflare-warp
-    restart: unless-stopped
-
-volumes:
-  warp-data:
