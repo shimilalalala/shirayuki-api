@@ -4,13 +4,21 @@ import { ANIMEX_BASE_URL, DEFAULT_UA } from './_shared.js';
 const DEFAULT_REFERER = `${ANIMEX_BASE_URL}/`;
 
 // Hosts we're willing to proxy, to avoid being turned into an open relay.
-// These are the CDNs animex's pp.animex.one /sources currently serves from:
-//   playlists -> hawk.24stream.xyz (hard sub), cdn.mewstream.buzz (soft sub)
-//   segments  -> *.ibyteimg.com
+// These are the CDNs animex's pp.animex.one /sources currently serves from
+// across all providers (mimi/yuki/miku/neko/mochi/beep/vee/uwu/kuro/sax/yume):
+//   playlists -> hawk.24stream.xyz, cdn.mewstream.buzz, vibeplayer.site,
+//                *.owocdn.top, neko.yokai.cfd (mp4), cdn.animeonsen.xyz (dash)
+//   segments  -> *.ibyteimg.com (ads, stripped), CDN-local
 //   subtitles -> *.lostproject.club, cdn.anizara.store
+//   embeds    -> allanime.uns.bio (kuro)
 const ALLOWED_HOST_SUFFIXES = [
   '24stream.xyz',
   'mewstream.buzz',
+  'vibeplayer.site',
+  'owocdn.top',
+  'yokai.cfd',
+  'animeonsen.xyz',
+  'uns.bio',
   'ibyteimg.com',
   'lostproject.club',
   'anizara.store',

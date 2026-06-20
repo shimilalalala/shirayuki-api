@@ -13,18 +13,27 @@ export const PP_API_BASE = 'https://pp.animex.one/rest/api';
 export const DEFAULT_UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
-// Streaming providers animex exposes. `sub` and `dub` differ slightly.
-export const SUB_PROVIDERS = ['mimi', 'yuki', 'miku', 'neko', 'mochi'];
-export const DUB_PROVIDERS = ['mimi', 'yuki', 'miku', 'mochi'];
+// Streaming providers animex exposes. `sub` and `dub` differ. These mirror the
+// ids returned by /rest/api/servers (subProviders/dubProviders). The "embed"
+// providers (kuro/sax/yume) still resolve to a real m3u8 via /rest/api/sources,
+// so they're allowed here too. Keep in sync with the live API.
+export const SUB_PROVIDERS = ['beep', 'mimi', 'vee', 'yuki', 'miku', 'neko', 'mochi', 'uwu'];
+export const DUB_PROVIDERS = ['mimi', 'yuki', 'miku', 'uwu', 'kuro', 'sax', 'yume'];
 export const DEFAULT_SERVER = 'mimi';
 
 // Friendly labels for the provider ids.
 const PROVIDER_LABELS = {
+  beep: 'Beep',
   mimi: 'Mimi',
+  vee: 'Vee',
   yuki: 'Yuki',
   miku: 'Miku',
   neko: 'Neko',
   mochi: 'Mochi',
+  uwu: 'Uwu',
+  kuro: 'Kuro',
+  sax: 'Sax',
+  yume: 'Yume',
 };
 
 export const providerLabel = (id) =>
