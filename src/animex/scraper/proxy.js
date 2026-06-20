@@ -1,7 +1,27 @@
+import { SocksProxyAgent } from 'socks-proxy-agent';
 import { axios } from '../../utils/scrapper-deps.js';
 import { ANIMEX_BASE_URL, DEFAULT_UA } from './_shared.js';
+import env from '../../config/env.js';
 
 const DEFAULT_REFERER = `${ANIMEX_BASE_URL}/`;
+
+// CDNs that Cloudflare IP-blocks our datacenter egress (plain 403, no challenge).
+// When GATED_PROXY is set (e.g. a WARP sidecar), requests to these hosts are
+// routed through it so they egress from a Cloudflare-trusted IP instead.
+const GATED_HOST_SUFFIXES = ['mewstream.buzz', 'lostproject.club'];
+
+const gatedAgent = env.GATED_PROXY ? new SocksProxyAgent(env.GATED_PROXY) : null;
+
+const isGatedHost = (urlStr) => {
+  try {
+    const { hostname } = new URL(urlStr);
+    return GATED_HOST_SUFFIXES.some(
+      (suffix) => hostname === suffix || hostname.endsWith(`.${suffix}`),
+    );
+  } catch {
+    return false;
+  }
+};
 
 // Hosts we're willing to proxy, to avoid being turned into an open relay.
 // These are the CDNs animex's pp.animex.one /sources currently serves from
@@ -94,12 +114,17 @@ export const proxyStream = async ({ url, referer, basePath }) => {
     upstreamOrigin = undefined;
   }
 
+  // Route Cloudflare-IP-gated CDNs through the WARP/SOCKS proxy when configured;
+  // everything else goes out direct (faster, and WARP could itself be blocked).
+  const useGatedProxy = gatedAgent && isGatedHost(url);
+
   const upstream = await axios.get(url, {
     proxy: false,
     timeout: 30000,
     responseType: 'arraybuffer',
     maxRedirects: 5,
     validateStatus: () => true,
+    ...(useGatedProxy ? { httpAgent: gatedAgent, httpsAgent: gatedAgent } : {}),
     headers: {
       'User-Agent': DEFAULT_UA,
       Accept: '*/*',
